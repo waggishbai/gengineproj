@@ -10,8 +10,10 @@ namespace gnj {
     }
 
     Window::Window(int w, int h, const char* title) {
-        glfwInit();
-
+        int isInit = glfwInit();
+        if (isInit == 0) {
+            std::cout << "\033[31mglfw error: glfw failed to initialize\033[0m\n";
+        }
         isOpen = true;
 
         width = w;
