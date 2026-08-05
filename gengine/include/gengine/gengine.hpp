@@ -5,6 +5,17 @@
 #include <GLFW/glfw3.h>
 
 namespace gnj {
+    bool init();
+
+    struct Monitor {
+    public:
+        int width;
+        int height;
+
+        GLFWmonitor* handle;
+    };
+    Monitor getPrimaryMonitor();
+
     class Window {
     private:
         static void framebuffer_size_callback(GLFWwindow*, int, int);
@@ -19,6 +30,10 @@ namespace gnj {
         bool fullscreen;
 
         Window(int, int, const char*);
+
+        Window(int, int, const char*, GLFWmonitor*);
+
+        Window(Monitor, const char*);
 
         void Update();
 
