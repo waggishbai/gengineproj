@@ -18,6 +18,9 @@ namespace gnj {
         height = h;
 
         handle = glfwCreateWindow(w, h, title, NULL, NULL);
+        if (handle == 0) {
+            std::cout << "\033[31mglfw error: failed to create window\033[0m\n";
+        }
         glfwMakeContextCurrent(handle);
 
         glfwSetFramebufferSizeCallback(handle, framebuffer_size_callback);
