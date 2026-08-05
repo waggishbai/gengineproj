@@ -28,8 +28,6 @@ namespace gnj {
         monitor.width = mode->width;
         monitor.height = mode->height;
 
-        std::cout << monitor.handle << std::endl;
-
         return monitor;
     }
 
