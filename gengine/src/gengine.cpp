@@ -241,5 +241,7 @@ namespace gnj {
 
     DemoCube::~DemoCube() {
         glDeleteProgram(shaderProgram);
+        glDeleteBuffers(1, &vbo);
+        glDeleteVertexArrays(1, &vao);
     }
 }
