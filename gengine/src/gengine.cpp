@@ -108,4 +108,55 @@ namespace gnj {
         isOpen = !glfwWindowShouldClose(handle);
     }
     //----------------------window---------------------
+
+    //-------------------demo cube---------------------
+    DemoCube::DemoCube() {
+        const char* vs = "#version 330 core"
+        "layout(location = 0) in vec3 aPos;"
+        "layout(location = 1) in vec3 aNormal"
+        "layout(location = 2) in vec2 aTexCoord"
+
+        "out vec3 pos;"
+
+        "uniform mat4 proj;"
+        "uniform mat4 model"
+        "uniform mat4 view"
+
+        "void main () {"
+        "   gl_Location = vec4(aPos, 1.0);"
+        "   pos = aPos;"
+        "}";
+        const char* fs = "#version 330 core"
+        "in vec3 pos;"
+        "out vec4 out_color;"
+        "void main {"
+        "   out_color = vec4(normalize((pos + 1 * .5)));"
+        "}";
+
+        shaderProgram = compileShaderProgram(vs, fs);
+
+        glGenVertexArrays(1, &vao);
+        glGenBuffers(1, &vbo);
+
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
+
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(0));
+        glEnableVertexAttribArray(0);
+
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 3));
+        glEnableVertexAttribArray(1);
+
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(sizeof(float) * 6));
+        glEnableVertexAttribArray(2);
+
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    DemoCube::~DemoCube() {
+        glDeleteProgram(shaderProgram);
+    }
 }
