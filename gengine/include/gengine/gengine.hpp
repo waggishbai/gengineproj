@@ -63,6 +63,8 @@ namespace gnj {
         DemoCube();
 
         ~DemoCube();
+
+
     };
 };
 
