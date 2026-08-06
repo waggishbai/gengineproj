@@ -141,6 +141,9 @@ namespace gnj {
         gladLoadGL();
 
         glViewport(0, 0, w, h);
+
+        glEnable(GL_DEPTH_TEST);
+        glClearColor(0, 0, 0, 1);
     }
 
     Window::Window(int w, int h, const char* title, GLFWmonitor* monitorHandle) {
@@ -160,6 +163,11 @@ namespace gnj {
         gladLoadGL();
 
         glViewport(0, 0, w, h);
+
+        glEnable(GL_DEPTH_TEST);
+        glClearColor(0, 0, 0, 1);
+
+
     }
 
     Window::Window(Monitor mon, const char* title) {
@@ -178,23 +186,41 @@ namespace gnj {
         gladLoadGL();
 
         glViewport(0, 0, width, height);
+
+        glEnable(GL_DEPTH_TEST);
+        glClearColor(0, 0, 0, 1);
     }
 
     Window::~Window() {
+        glfwDestroyWindow(handle);
         glfwTerminate();
-        std::cout << "terminated";
+        std::cout << "terminated\n";
     }
 
     void Window::Update() {
         glfwPollEvents();
         glfwSwapBuffers(handle);
+        if (glfwWindowShouldClose(handle)) {
+            isOpen = false;
+        }
+    }
 
-        isOpen = !glfwWindowShouldClose(handle);
+    void Window::Clear() {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
     //----------------------window---------------------
 
     //-------------------demo cube---------------------
     DemoCube::DemoCube() {
+
+        modelMat = glm::mat4(1);
+        modelOrigin = glm::mat4(1);
+
+        rotation = glm::quat();
+        scale = glm::vec3(1, 1, 1);
+        position = glm::vec3(0, 0, 0);
+
+        std::cout << vertLen << std::endl;
         const char* vs = "#version 330 core\n"
         "layout(location = 0) in vec3 aPos;\n"
         "layout(location = 1) in vec3 aNormal;\n"
@@ -207,14 +233,14 @@ namespace gnj {
         "uniform mat4 view;\n"
 
         "void main () {\n"
-        "   gl_Position = vec4(aPos, 1.0);\n"
+        "   gl_Position = proj * view * model * vec4(aPos, 1.0);\n"
         "   pos = aPos;\n"
         "}";
         const char* fs = "#version 330 core\n"
         "in vec3 pos;\n"
         "out vec4 out_color;\n"
         "void main() {\n"
-        "   out_color = vec4(normalize((pos + 1 * .5)), 1.0);\n"
+        "   out_color = vec4(normalize((pos + 2 * .2)), 1.0);\n"
         "}";
 
         shaderProgram = compileShaderProgram(vs, fs);
@@ -244,4 +270,54 @@ namespace gnj {
         glDeleteBuffers(1, &vbo);
         glDeleteVertexArrays(1, &vao);
     }
+
+    void DemoCube::setPosition(float x, float y, float z) {
+        position = glm::vec3(x, y, z);
+    }
+    void DemoCube::setRotation(float x, float y, float z) {
+        //warning, using this method can result in gimbal lock.
+
+        glm::quat a = glm::angleAxis(glm::radians(x), glm::vec3(1, 0, 0));
+        glm::quat b = glm::angleAxis(glm::radians(y), glm::vec3(0, 1, 0));
+        glm::quat c = glm::angleAxis(glm::radians(z), glm::vec3(0, 0, 1));
+
+        rotation = a * b * c;
+    }
+    void DemoCube::setScale(float x, float y, float z) {
+        scale = glm::vec3(x, y, z);
+    }
+
+    void DemoCube::Update() {
+        glm::mat4 trans = glm::translate(modelOrigin, position);
+        glm::mat4 rot = glm::mat4_cast(rotation);
+        glm::mat4 rotMat = modelOrigin * rot;
+        glm::mat4 sca = glm::scale(modelOrigin, scale);
+
+        modelMat =  trans * rot * sca;
+
+        //modelMat *= glm::scale(modelOrigin, scale);
+        //modelMat *= glm::toMat4(rotation) * modelOrigin;
+        //modelMat = glm::translate(modelOrigin, position);
+    }
+
+
+    void DemoCube::testDraw() {
+
+        const GLFWvidmode* mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        glm::mat4 view = glm::lookAt(glm::vec3(5, 5, 5), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0));
+        glm::mat4 proj = glm::perspective(glm::radians(90.f), ((float)mode->width / (float)mode->height), .01f, 100.f);
+
+        glBindVertexArray(vao);
+        glUseProgram(shaderProgram);
+
+        mat4ToProgram(shaderProgram, modelMat, "model");
+        mat4ToProgram(shaderProgram, view, "view");
+        mat4ToProgram(shaderProgram, proj, "proj");
+
+        glDrawArrays(GL_TRIANGLES, 0, vertLen / 8);
+
+        glUseProgram(0);
+        glBindVertexArray(0);
+    }
+
 }
