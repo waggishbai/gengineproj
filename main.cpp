@@ -16,14 +16,19 @@ void key_callback(GLFWwindow*, int key, int scancode, int action, int mods) {
 int main() {
     gnj::init();
 
-    gnj::Window window(320, 180, "twt", gnj::getPrimaryMonitor().handle);
+    gnj::Window window(gnj::getPrimaryMonitor(), "twt");
 
     gnj::DemoCube cube;
+
+    gnj::Camera cam(90.f, ((float)window.width / (float)window.height), 0.01f, 100.f);
 
     glm::vec3 pos(1, 1, 1);
     glm::vec3 rot(0, 0, 0);
 
     cube.setScale(2, 2, 2);
+
+    cam.setPosition(2, 2, 10);
+    cam.Update();
 
     glfwSetKeyCallback(window.handle, key_callback);
     while (window.isOpen) {
@@ -31,16 +36,18 @@ int main() {
             window.isOpen = false;
             std::cout << "die\n";
         }
-        //pos.x += .01f;
-        rot.y += .1f;
+        pos.z += .01f;
+        //rot.y += .1f;
 
         window.Clear();
 
         cube.setPosition(pos.x, pos.y, pos.z);
         cube.setRotation(rot.x, rot.y, rot.z);
 
+        cube.Draw(cam);
+
         cube.Update();
-        cube.testDraw();
+
 
         window.Update();
     }

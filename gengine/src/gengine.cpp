@@ -1,5 +1,6 @@
 #include <gengine/gengine.hpp>
 
+#include <glm/ext/matrix_clip_space.hpp>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -210,6 +211,55 @@ namespace gnj {
     }
     //----------------------window---------------------
 
+    //---------------------camera----------------------
+
+    Camera::Camera(float f, float a, float ne, float fa) {
+        fov = f;
+        near = ne;
+        far = fa;
+        aspect = a;
+
+        viewMat = glm::mat4(1);
+        viewOrigin = glm::mat4(1);
+
+        position = glm::vec3(0, 0, 0);
+        rotation = glm::quat();
+
+        proj = glm::perspective(glm::radians(fov), aspect, near, far);
+    }
+
+    void Camera::setPosition(float x, float y, float z) {
+        position = glm::vec3(-x, -y, -z);
+    }
+    void Camera::setRotation(float x, float y, float z) {
+        //warning, using this method can result in gimbal lock.
+
+        glm::quat a = glm::angleAxis(glm::radians(x), glm::vec3(1, 0, 0));
+        glm::quat b = glm::angleAxis(glm::radians(y), glm::vec3(0, 1, 0));
+        glm::quat c = glm::angleAxis(glm::radians(z), glm::vec3(0, 0, 1));
+
+        rotation = a * b * c;
+    }
+
+    void Camera::Update() {
+        glm::mat4 trans = glm::translate(viewOrigin, position);
+        glm::mat4 rot = glm::mat4_cast(rotation);
+        glm::mat4 rotMat = viewOrigin * rot;
+
+        viewMat =  trans * rot;
+
+
+        proj = glm::perspective(glm::radians(fov), aspect, near, far);
+    }
+
+    glm::mat4 Camera::getView() {
+        return viewMat;
+    }
+    glm::mat4 Camera::getProj() {
+        return proj;
+    }
+    //---------------------camera----------------------
+
     //-------------------demo cube---------------------
     DemoCube::DemoCube() {
 
@@ -313,6 +363,21 @@ namespace gnj {
         mat4ToProgram(shaderProgram, modelMat, "model");
         mat4ToProgram(shaderProgram, view, "view");
         mat4ToProgram(shaderProgram, proj, "proj");
+
+        glDrawArrays(GL_TRIANGLES, 0, vertLen / 8);
+
+        glUseProgram(0);
+        glBindVertexArray(0);
+    }
+
+    void DemoCube::Draw(Camera cam) {
+
+        glBindVertexArray(vao);
+        glUseProgram(shaderProgram);
+
+        mat4ToProgram(shaderProgram, modelMat, "model");
+        mat4ToProgram(shaderProgram, cam.getView(), "view");
+        mat4ToProgram(shaderProgram, cam.getProj(), "proj");
 
         glDrawArrays(GL_TRIANGLES, 0, vertLen / 8);
 

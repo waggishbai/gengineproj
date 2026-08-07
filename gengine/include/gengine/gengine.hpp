@@ -52,6 +52,34 @@ namespace gnj {
         void Clear();
     };
 
+    class Camera {
+    private:
+        float fov;
+        float near;
+        float far;
+        float aspect;
+
+        glm::mat4 viewMat;
+        glm::mat4 viewOrigin;
+
+        glm::vec3 position;
+        glm::quat rotation;
+
+        glm::mat4 proj;
+    public:
+
+        Camera(float, float, float, float);
+
+        void setPosition(float, float, float);
+        void setRotation(float, float, float);
+
+        void Update();
+
+        glm::mat4 getView();
+        glm::mat4 getProj();
+
+    };
+
     class DemoCube {
     private:
 
@@ -85,6 +113,8 @@ namespace gnj {
         void Update();
 
         void testDraw();
+
+        void Draw(Camera);
     };
 };
 
