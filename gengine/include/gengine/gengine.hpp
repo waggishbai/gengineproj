@@ -15,6 +15,8 @@
 namespace gnj {
     bool init();
 
+    void terminate();
+
     struct Monitor {
     public:
         int width;
@@ -73,10 +75,12 @@ namespace gnj {
         void setPosition(float, float, float);
         void setRotation(float, float, float);
 
+        void setProj(float, float, float, float);
+
         void Update();
 
-        glm::mat4 getView();
-        glm::mat4 getProj();
+        const glm::mat4& getView() const;
+        const glm::mat4& getProj() const;
 
     };
 
@@ -114,7 +118,7 @@ namespace gnj {
 
         void testDraw();
 
-        void Draw(Camera);
+        void Draw(const Camera&);
     };
 };
 

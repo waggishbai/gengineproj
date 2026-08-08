@@ -16,39 +16,43 @@ void key_callback(GLFWwindow*, int key, int scancode, int action, int mods) {
 int main() {
     gnj::init();
 
-    gnj::Window window(gnj::getPrimaryMonitor(), "twt");
+    {
+        gnj::Window window(gnj::getPrimaryMonitor(), "twt");
 
-    gnj::DemoCube cube;
+        gnj::DemoCube cube;
 
-    gnj::Camera cam(90.f, ((float)window.width / (float)window.height), 0.01f, 100.f);
+        gnj::Camera cam(90.f, ((float)window.width / (float)window.height), 0.01f, 100.f);
 
-    glm::vec3 pos(1, 1, 1);
-    glm::vec3 rot(0, 0, 0);
+        glm::vec3 pos(1, 1, 1);
+        glm::vec3 rot(0, 0, 0);
 
-    cube.setScale(2, 2, 2);
+        cube.setScale(2, 2, 2);
 
-    cam.setPosition(2, 2, 10);
-    cam.Update();
+        cam.setPosition(2, 2, 10);
+        cam.Update();
 
-    glfwSetKeyCallback(window.handle, key_callback);
-    while (window.isOpen) {
-        if (keys.esc) {
-            window.isOpen = false;
-            std::cout << "die\n";
+        glfwSetKeyCallback(window.handle, key_callback);
+        while (window.isOpen) {
+            if (keys.esc) {
+                window.isOpen = false;
+                std::cout << "die\n";
+            }
+            pos.z += .01f;
+            //rot.y += .1f;
+
+            window.Clear();
+
+            cube.setPosition(pos.x, pos.y, pos.z);
+            cube.setRotation(rot.x, rot.y, rot.z);
+
+            cube.Draw(cam);
+
+            cube.Update();
+
+
+            window.Update();
         }
-        pos.z += .01f;
-        //rot.y += .1f;
-
-        window.Clear();
-
-        cube.setPosition(pos.x, pos.y, pos.z);
-        cube.setRotation(rot.x, rot.y, rot.z);
-
-        cube.Draw(cam);
-
-        cube.Update();
-
-
-        window.Update();
     }
+    gnj::terminate();
+
 }

@@ -32,6 +32,7 @@ GLuint compileShader(const char* shaderText, GLenum type, bool errorCheck) {
         } else {
             std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
         }
+        glDeleteShader(shader);
 
     }
     return shader;
@@ -97,6 +98,10 @@ namespace gnj {
             std::cerr << "\033[31mglfw error: glfw failed to initialize\033[0m\n";
         }
         return success;
+    }
+
+    void terminate() {
+        glfwTerminate();
     }
 
     Monitor getPrimaryMonitor() {
@@ -194,7 +199,6 @@ namespace gnj {
 
     Window::~Window() {
         glfwDestroyWindow(handle);
-        glfwTerminate();
         std::cout << "terminated\n";
     }
 
@@ -247,15 +251,21 @@ namespace gnj {
         glm::mat4 rotMat = viewOrigin * rot;
 
         viewMat =  trans * rot;
+    }
 
+    void Camera::setProj(float f, float a, float ne, float fa) {
+        fov = f;
+        aspect = a;
+        near = ne;
+        far = fa;
 
         proj = glm::perspective(glm::radians(fov), aspect, near, far);
     }
 
-    glm::mat4 Camera::getView() {
+    const glm::mat4& Camera::getView() const {
         return viewMat;
     }
-    glm::mat4 Camera::getProj() {
+    const glm::mat4& Camera::getProj() const {
         return proj;
     }
     //---------------------camera----------------------
@@ -370,7 +380,7 @@ namespace gnj {
         glBindVertexArray(0);
     }
 
-    void DemoCube::Draw(Camera cam) {
+    void DemoCube::Draw(const Camera& cam) {
 
         glBindVertexArray(vao);
         glUseProgram(shaderProgram);

@@ -1,1 +1,2 @@
 this is just a project i wanted to make so i'd have some abstraction to make stuff with opengl. its not even close to done but maybe it will be one day ;-;
+i'd like to mention that this is like the third time i've ever worked on a project this big and i've only been using c++ for a few months so it probably looks absolutely awful to someone who knows what they're doing. oh and i'm self taught so that doesn't help.
